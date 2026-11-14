@@ -1,17 +1,17 @@
 import Link from "next/link";
 import { format } from "date-fns";
+import { rsvp } from "./events/rsvp-actions";
 
 export default async function Home() {
   let events: any[] = [];
 
-  // Only try Supabase if the env vars are actually set
   if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     try {
       const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient();
       const { data } = await supabase
         .from("events")
-        .select("*")
+        .select("*, rsvps(count)")
         .order("start_time", { ascending: true })
         .limit(6);
       events = data || [];
@@ -31,6 +31,7 @@ export default async function Home() {
           </div>
           <nav className="flex items-center gap-6 text-sm">
             <Link href="/calendar" className="text-slate-300 hover:text-white transition">Calendar</Link>
+            <Link href="/bands" className="text-slate-300 hover:text-white transition">Bands</Link>
             <Link href="/post" className="text-slate-300 hover:text-white transition">Post Event</Link>
             <Link href="/login" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium transition">Sign In</Link>
           </nav>
@@ -69,19 +70,30 @@ export default async function Home() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {events.map((e) => (
-              <div key={e.id} className="group glass rounded-2xl p-6 hover:border-cyan-500/40 transition border border-transparent">
-                <div className="flex justify-between items-start mb-4">
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-300">
-                    {e.dance_style || "Event"}
-                  </span>
+            {events.map((e) => {
+              const going = e.rsvps?.[0]?.count ?? 0;
+              return (
+                <div key={e.id} className="group glass rounded-2xl p-6 hover:border-cyan-500/40 transition border border-transparent">
+                  <div className="flex justify-between items-start mb-4">
+                    <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-300">
+                      {e.dance_style || "Event"}
+                    </span>
+                    <span className="text-xs text-slate-400">{going} going</span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2 group-hover:text-cyan-200 transition">{e.title}</h3>
+                  <p className="text-slate-400 text-sm mb-4">
+                    {e.location} • {format(new Date(e.start_time), "EEE MMM d, h:mm a")}
+                  </p>
+                  <form action={rsvp}>
+                    <input type="hidden" name="event_id" value={e.id} />
+                    <input type="hidden" name="status" value="going" />
+                    <button type="submit" className="text-sm bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 px-3 py-1.5 rounded-full transition">
+                      I’m Going
+                    </button>
+                  </form>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-cyan-200 transition">{e.title}</h3>
-                <p className="text-slate-400 text-sm">
-                  {e.location} • {format(new Date(e.start_time), "EEE MMM d, h:mm a")}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
