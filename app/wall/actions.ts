@@ -16,6 +16,12 @@ export async function postToWall(formData: FormData) {
     redirect("/login?message=Sign in to post");
   }
 
+  // Make sure a profile row exists (foreign key requirement)
+  await supabase.from("lakes_profiles").upsert({
+    id: user.id,
+    full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Dancer",
+  }, { onConflict: "id" });
+
   if (file && file.size > 0) {
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${user.id}/wall/${Date.now()}.${ext}`;
@@ -26,17 +32,25 @@ export async function postToWall(formData: FormData) {
     if (!uploadError) {
       const { data } = supabase.storage.from("lakes-images").getPublicUrl(path);
       mediaUrl = data.publicUrl;
+    } else {
+      console.error("Upload error:", uploadError);
     }
   }
 
-  await supabase.from("lakes_wall_posts").insert({
+  const { error } = await supabase.from("lakes_wall_posts").insert({
     author_id: user.id,
     wall_user_id: user.id,
     content,
     image_url: mediaUrl || null,
   });
 
+  if (error) {
+    console.error("Wall post error:", error);
+    redirect("/wall?message=" + encodeURIComponent(error.message || "Could not post"));
+  }
+
   revalidatePath("/wall");
   revalidatePath("/profile");
   revalidatePath(`/profile/${user.id}`);
+  redirect("/wall");
 }
