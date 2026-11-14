@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { login } from "../auth/actions";
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams: { message?: string };
+}) {
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-md glass rounded-3xl p-8">
@@ -10,9 +15,12 @@ export default function LoginPage() {
         </div>
         <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
         <p className="text-slate-400 mb-8">Sign in to post events and connect with the community.</p>
-        <form className="space-y-4">
-          <input type="email" placeholder="Email" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
-          <input type="password" placeholder="Password" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
+        {searchParams?.message && (
+          <p className="mb-4 text-sm text-cyan-400">{searchParams.message}</p>
+        )}
+        <form action={login} className="space-y-4">
+          <input name="email" type="email" placeholder="Email" required className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
+          <input name="password" type="password" placeholder="Password" required className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
           <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-white py-3 rounded-xl font-medium transition">
             Sign In
           </button>
