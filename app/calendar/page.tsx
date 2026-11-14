@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 export default async function CalendarPage() {
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const now = new Date();
