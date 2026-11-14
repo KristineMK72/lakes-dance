@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 export async function postToWall(formData: FormData) {
   const content = formData.get("content") as string;
+  const imageUrl = formData.get("image_url") as string;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -17,6 +18,7 @@ export async function postToWall(formData: FormData) {
     author_id: user.id,
     wall_user_id: user.id,
     content,
+    image_url: imageUrl || null,
   });
 
   revalidatePath("/wall");
