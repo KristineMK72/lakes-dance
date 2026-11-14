@@ -39,13 +39,13 @@ export default async function WallPage() {
             <input
               name="image_file"
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               className="w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30"
             />
             <input
               name="image_url"
               type="url"
-              placeholder="Or paste an image URL"
+              placeholder="Or paste an image/video URL"
               className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 text-sm"
             />
             <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white px-5 py-2 rounded-full text-sm font-medium">
@@ -55,27 +55,34 @@ export default async function WallPage() {
         )}
 
         <div className="space-y-4">
-          {(posts || []).map((post: any) => (
-            <div key={post.id} className="glass rounded-2xl p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-sm font-medium overflow-hidden">
-                  {post.author?.avatar_url ? (
-                    <img src={post.author.avatar_url} alt="" className="w-full h-full object-cover" />
+          {(posts || []).map((post: any) => {
+            const isVideo = post.image_url && /\.(mp4|webm|mov)$/i.test(post.image_url);
+            return (
+              <div key={post.id} className="glass rounded-2xl p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <Link href={`/profile/${post.author_id}`} className="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-sm font-medium overflow-hidden">
+                    {post.author?.avatar_url ? (
+                      <img src={post.author.avatar_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      (post.author?.full_name || "D")[0]
+                    )}
+                  </Link>
+                  <div>
+                    <Link href={`/profile/${post.author_id}`} className="font-medium hover:text-cyan-300">{post.author?.full_name || "Dancer"}</Link>
+                    <div className="text-xs text-slate-400">{format(new Date(post.created_at), "MMM d, h:mm a")}</div>
+                  </div>
+                </div>
+                <p className="text-slate-200">{post.content}</p>
+                {post.image_url && (
+                  isVideo ? (
+                    <video src={post.image_url} controls className="mt-3 rounded-xl max-h-80 w-full" />
                   ) : (
-                    (post.author?.full_name || "D")[0]
-                  )}
-                </div>
-                <div>
-                  <div className="font-medium">{post.author?.full_name || "Dancer"}</div>
-                  <div className="text-xs text-slate-400">{format(new Date(post.created_at), "MMM d, h:mm a")}</div>
-                </div>
+                    <img src={post.image_url} alt="" className="mt-3 rounded-xl max-h-80 object-cover w-full" />
+                  )
+                )}
               </div>
-              <p className="text-slate-200">{post.content}</p>
-              {post.image_url && (
-                <img src={post.image_url} alt="" className="mt-3 rounded-xl max-h-80 object-cover w-full" />
-              )}
-            </div>
-          ))}
+            );
+          })}
           {(!posts || posts.length === 0) && (
             <div className="glass rounded-2xl p-10 text-center text-slate-400">No posts yet. Be the first!</div>
           )}
