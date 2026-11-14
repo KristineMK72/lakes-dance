@@ -23,9 +23,32 @@ create table if not exists public.events (
   created_at timestamptz default now()
 );
 
+-- Bands people want to share
+create table if not exists public.bands (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references public.profiles(id) on delete cascade,
+  name text not null,
+  genre text,
+  description text,
+  website text,
+  created_at timestamptz default now()
+);
+
+-- RSVPs for events
+create table if not exists public.rsvps (
+  id uuid default gen_random_uuid() primary key,
+  event_id uuid references public.events(id) on delete cascade,
+  user_id uuid references public.profiles(id) on delete cascade,
+  status text default 'going' check (status in ('going', 'maybe', 'not_going')),
+  created_at timestamptz default now(),
+  unique(event_id, user_id)
+);
+
 -- Enable RLS
 alter table public.profiles enable row level security;
 alter table public.events enable row level security;
+alter table public.bands enable row level security;
+alter table public.rsvps enable row level security;
 
 -- Policies
 create policy "Public profiles are viewable by everyone" on public.profiles for select using (true);
@@ -36,6 +59,16 @@ create policy "Events are viewable by everyone" on public.events for select usin
 create policy "Authenticated users can create events" on public.events for insert with check (auth.uid() = user_id);
 create policy "Users can update own events" on public.events for update using (auth.uid() = user_id);
 create policy "Users can delete own events" on public.events for delete using (auth.uid() = user_id);
+
+create policy "Bands are viewable by everyone" on public.bands for select using (true);
+create policy "Authenticated users can create bands" on public.bands for insert with check (auth.uid() = user_id);
+create policy "Users can update own bands" on public.bands for update using (auth.uid() = user_id);
+create policy "Users can delete own bands" on public.bands for delete using (auth.uid() = user_id);
+
+create policy "RSVPs are viewable by everyone" on public.rsvps for select using (true);
+create policy "Authenticated users can create rsvps" on public.rsvps for insert with check (auth.uid() = user_id);
+create policy "Users can update own rsvps" on public.rsvps for update using (auth.uid() = user_id);
+create policy "Users can delete own rsvps" on public.rsvps for delete using (auth.uid() = user_id);
 
 -- Auto-create profile on signup
 create or replace function public.handle_new_user()
