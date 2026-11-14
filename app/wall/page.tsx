@@ -29,14 +29,20 @@ export default async function WallPage() {
         <h1 className="text-3xl font-bold mb-6">Community Wall</h1>
 
         {user && (
-          <form action={postToWall} className="glass rounded-2xl p-6 mb-8">
+          <form action={postToWall} className="glass rounded-2xl p-6 mb-8 space-y-3">
             <textarea
               name="content"
               placeholder="Share something with the Lakes Dance community..."
               className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 min-h-[100px]"
               required
             />
-            <button type="submit" className="mt-3 bg-cyan-500 hover:bg-cyan-400 text-white px-5 py-2 rounded-full text-sm font-medium">
+            <input
+              name="image_url"
+              type="url"
+              placeholder="Optional image URL (photo from a dance outing)"
+              className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 text-sm"
+            />
+            <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white px-5 py-2 rounded-full text-sm font-medium">
               Post
             </button>
           </form>
@@ -46,8 +52,12 @@ export default async function WallPage() {
           {(posts || []).map((post: any) => (
             <div key={post.id} className="glass rounded-2xl p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-sm font-medium">
-                  {(post.author?.full_name || "D")[0]}
+                <div className="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-sm font-medium overflow-hidden">
+                  {post.author?.avatar_url ? (
+                    <img src={post.author.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    (post.author?.full_name || "D")[0]
+                  )}
                 </div>
                 <div>
                   <div className="font-medium">{post.author?.full_name || "Dancer"}</div>
@@ -56,7 +66,7 @@ export default async function WallPage() {
               </div>
               <p className="text-slate-200">{post.content}</p>
               {post.image_url && (
-                <img src={post.image_url} alt="" className="mt-3 rounded-xl max-h-80 object-cover" />
+                <img src={post.image_url} alt="" className="mt-3 rounded-xl max-h-80 object-cover w-full" />
               )}
             </div>
           ))}
