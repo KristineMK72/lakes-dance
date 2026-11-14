@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { format } from "date-fns";
+import { uploadEventPhoto } from "./actions";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function PastEventsPage() {
   let pastEvents: any[] = [];
+  let user: any = null;
 
   if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     try {
-      const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient();
+      const { data: { user: u } } = await supabase.auth.getUser();
+      user = u;
+
       const { data } = await supabase
         .from("lakes_events")
         .select("*, lakes_event_photos(*)")
@@ -30,7 +35,7 @@ export default async function PastEventsPage() {
           </Link>
           <nav className="flex items-center gap-6 text-sm">
             <Link href="/calendar" className="text-slate-300 hover:text-white transition">Calendar</Link>
-            <Link href="/bands" className="text-slate-300 hover:text-white transition">Bands</Link>
+            <Link href="/wall" className="text-slate-300 hover:text-white transition">Wall</Link>
             <Link href="/past" className="text-cyan-300">Past Events</Link>
             <Link href="/profile" className="text-slate-300 hover:text-white transition">Profile</Link>
           </nav>
@@ -43,7 +48,7 @@ export default async function PastEventsPage() {
 
         {pastEvents.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center text-slate-400">
-            No past events with photos yet. Check back after the next dance!
+            No past events yet. Check back after the next dance!
           </div>
         ) : (
           <div className="space-y-12">
@@ -55,6 +60,24 @@ export default async function PastEventsPage() {
                     {format(new Date(event.start_time), "MMMM d, yyyy")} • {event.location}
                   </p>
                 </div>
+
+                {user && (
+                  <form action={uploadEventPhoto} encType="multipart/form-data" className="glass rounded-2xl p-4 mb-6 flex flex-wrap gap-3 items-end">
+                    <input type="hidden" name="event_id" value={event.id} />
+                    <div className="flex-1 min-w-[200px]">
+                      <label className="block text-xs text-slate-400 mb-1">Add a photo</label>
+                      <input name="photo" type="file" accept="image/*" required className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-cyan-500/20 file:text-cyan-300" />
+                    </div>
+                    <div className="flex-1 min-w-[160px]">
+                      <label className="block text-xs text-slate-400 mb-1">Caption (optional)</label>
+                      <input name="caption" type="text" placeholder="Great night!" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
+                    </div>
+                    <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium">
+                      Share
+                    </button>
+                  </form>
+                )}
+
                 {event.lakes_event_photos && event.lakes_event_photos.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {event.lakes_event_photos.map((photo: any) => (
