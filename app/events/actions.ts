@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export async function createEvent(formData: FormData) {
-  const supabase = await createClient();
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    redirect("/post?message=Supabase is not configured yet. Add your environment variables in Vercel.");
+  }
 
   const {
     data: { user },
