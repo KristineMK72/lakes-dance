@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { rsvp } from "./events/rsvp-actions";
+import { saveEvent } from "./events/save-actions";
 
 export default async function Home() {
   let events: any[] = [];
@@ -32,6 +33,7 @@ export default async function Home() {
           </div>
           <nav className="flex items-center gap-5 text-sm">
             <Link href="/calendar" className="text-slate-300 hover:text-white transition">Calendar</Link>
+            <Link href="/wall" className="text-slate-300 hover:text-white transition">Wall</Link>
             <Link href="/bands" className="text-slate-300 hover:text-white transition">Bands</Link>
             <Link href="/past" className="text-slate-300 hover:text-white transition">Past</Link>
             <Link href="/post" className="text-slate-300 hover:text-white transition">Post</Link>
@@ -75,6 +77,9 @@ export default async function Home() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.map((e) => {
               const going = e.lakes_rsvps?.[0]?.count ?? 0;
+              const mapsUrl = e.location
+                ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(e.location)}`
+                : null;
               return (
                 <div key={e.id} className="group glass rounded-2xl p-6 hover:border-cyan-500/40 transition border border-transparent">
                   <div className="flex justify-between items-start mb-4">
@@ -87,13 +92,31 @@ export default async function Home() {
                   <p className="text-slate-400 text-sm mb-4">
                     {e.location} • {format(new Date(e.start_time), "EEE MMM d, h:mm a")}
                   </p>
-                  <form action={rsvp}>
-                    <input type="hidden" name="event_id" value={e.id} />
-                    <input type="hidden" name="status" value="going" />
-                    <button type="submit" className="text-sm bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 px-3 py-1.5 rounded-full transition">
-                      I’m Going
-                    </button>
-                  </form>
+                  <div className="flex flex-wrap gap-2">
+                    <form action={rsvp}>
+                      <input type="hidden" name="event_id" value={e.id} />
+                      <input type="hidden" name="status" value="going" />
+                      <button type="submit" className="text-sm bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 px-3 py-1.5 rounded-full transition">
+                        I’m Going
+                      </button>
+                    </form>
+                    <form action={saveEvent}>
+                      <input type="hidden" name="event_id" value={e.id} />
+                      <button type="submit" className="text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition">
+                        Save
+                      </button>
+                    </form>
+                    {mapsUrl && (
+                      <a
+                        href={mapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition"
+                      >
+                        Directions
+                      </a>
+                    )}
+                  </div>
                 </div>
               );
             })}
