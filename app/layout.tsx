@@ -8,6 +8,28 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Lakes Dance | Brainerd Lakes Dance Community",
   description: "Discover, post, and join dance events in the Brainerd Lakes area. Socials, classes, ballroom, line dancing and more.",
+  openGraph: {
+    title: "Lakes Dance | Brainerd Lakes Dance Community",
+    description: "Where the Lakes come to dance. Find socials, classes, and community events.",
+    url: "https://lakes-dance.vercel.app",
+    siteName: "Lakes Dance",
+    images: [
+      {
+        url: "https://lakes-dance.vercel.app/thumbnail.jpg",
+        width: 1200,
+        height: 800,
+        alt: "Paul Bunyan watching people dance by the lake",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lakes Dance | Brainerd Lakes Dance Community",
+    description: "Where the Lakes come to dance. Find socials, classes, and community events.",
+    images: ["https://lakes-dance.vercel.app/thumbnail.jpg"],
+  },
 };
 
 export default function RootLayout({
