@@ -55,27 +55,39 @@ export default async function CalendarPage() {
           </div>
           <div className="grid grid-cols-7 gap-2">
             {Array.from({ length: startPadding }).map((_, i) => (
-              <div key={`pad-${i}`} className="aspect-square rounded-xl opacity-30" />
+              <div key={`pad-${i}`} className="min-h-[100px] rounded-xl opacity-30" />
             ))}
             {daysInMonth.map((day) => {
               const dayNum = day.getDate();
               const dayEvents = eventsByDay[dayNum] || [];
               return (
-                <div key={dayNum} className={`aspect-square rounded-xl p-2 text-sm bg-slate-900/40 ${dayEvents.length ? "ring-1 ring-cyan-500/40" : ""}`}>
-                  <div className="font-medium">{dayNum}</div>
-                  {dayEvents.slice(0, 2).map((ev) => (
-                    <div key={ev.id} className="text-[10px] text-cyan-400 mt-1 truncate" title={ev.title}>
-                      {ev.title}
-                    </div>
-                  ))}
-                  {dayEvents.length > 2 && (
-                    <div className="text-[10px] text-slate-500">+{dayEvents.length - 2}</div>
-                  )}
+                <div key={dayNum} className={`min-h-[100px] rounded-xl p-2 text-sm bg-slate-900/40 ${dayEvents.length ? "ring-1 ring-cyan-500/40" : ""}`}>
+                  <div className="font-medium mb-1">{dayNum}</div>
+                  <div className="space-y-1">
+                    {dayEvents.map((ev) => {
+                      const mapsUrl = ev.location
+                        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ev.location)}`
+                        : null;
+                      const label = (
+                        <span className="block text-[10px] leading-tight text-cyan-300 hover:text-cyan-100 truncate" title={`${ev.title}${ev.location ? " — " + ev.location : ""}`}>
+                          {ev.title}
+                        </span>
+                      );
+                      return mapsUrl ? (
+                        <a key={ev.id} href={mapsUrl} target="_blank" rel="noopener noreferrer">
+                          {label}
+                        </a>
+                      ) : (
+                        <div key={ev.id}>{label}</div>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
+        <p className="text-xs text-slate-500 mt-4 text-center">Click any event for driving directions</p>
       </main>
     </div>
   );
