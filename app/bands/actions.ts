@@ -15,7 +15,7 @@ export async function createBand(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { error } = await supabase.from("bands").insert({
+  const { error } = await supabase.from("lakes_bands").insert({
     user_id: user.id,
     name: formData.get("name") as string,
     genre: formData.get("genre") as string,
