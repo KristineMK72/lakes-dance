@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { signup } from "../auth/actions";
 
-export default function SignupPage({
+export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: { message?: string };
+  searchParams: Promise<{ message?: string }>;
 }) {
+  const params = await searchParams;
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-md glass rounded-3xl p-8">
@@ -15,8 +17,8 @@ export default function SignupPage({
         </div>
         <h1 className="text-3xl font-bold mb-2">Join the community</h1>
         <p className="text-slate-400 mb-8">Create an account to post events and stay in the loop.</p>
-        {searchParams?.message && (
-          <p className="mb-4 text-sm text-cyan-400">{searchParams.message}</p>
+        {params?.message && (
+          <p className="mb-4 text-sm text-cyan-400">{params.message}</p>
         )}
         <form action={signup} className="space-y-4">
           <input name="full_name" type="text" placeholder="Full name" required className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
