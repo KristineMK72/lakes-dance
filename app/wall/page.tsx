@@ -4,7 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { postToWall } from "./actions";
 import { signOut } from "../auth/actions";
 
-export default async function WallPage() {
+export default async function WallPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -37,6 +42,10 @@ export default async function WallPage() {
 
       <main className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="text-3xl font-bold mb-6">Community Wall</h1>
+
+        {params?.message && (
+          <p className="mb-4 text-sm text-cyan-400">{params.message}</p>
+        )}
 
         {user ? (
           <form action={postToWall} encType="multipart/form-data" className="glass rounded-2xl p-6 mb-8 space-y-3">
