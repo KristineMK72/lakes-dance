@@ -71,9 +71,10 @@ export default async function ProfilePage() {
               <textarea name="bio" defaultValue={profile?.bio || ""} rows={3} className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Tell the community a little about yourself..." />
             </div>
             <div>
-              <label className="block text-sm mb-2 text-slate-300">Avatar URL</label>
-              <input name="avatar_url" defaultValue={profile?.avatar_url || ""} className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Paste an image URL for now" />
-              <p className="text-xs text-slate-500 mt-1">Direct file upload coming once Storage is set up</p>
+              <label className="block text-sm mb-2 text-slate-300">Profile Photo</label>
+              <input name="avatar_file" type="file" accept="image/*" className="w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30" />
+              <p className="text-xs text-slate-500 mt-1">Or paste an image URL below</p>
+              <input name="avatar_url" defaultValue={profile?.avatar_url || ""} className="w-full mt-2 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 text-sm" placeholder="https://..." />
             </div>
             <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-white py-3 rounded-xl font-medium transition">
               Save Profile
