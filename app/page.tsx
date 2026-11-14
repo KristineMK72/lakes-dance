@@ -1,9 +1,17 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { format } from "date-fns";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: events } = await supabase
+    .from("events")
+    .select("*")
+    .order("start_time", { ascending: true })
+    .limit(6);
+
   return (
     <div className="min-h-screen">
-      {/* Header */}
       <header className="sticky top-0 z-50 border-b border-white/10 glass">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -18,7 +26,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-500/20 via-transparent to-transparent" />
         <div className="mx-auto max-w-6xl px-6 pt-24 pb-20 text-center relative">
@@ -40,28 +47,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Upcoming Events */}
       <section className="mx-auto max-w-6xl px-6 pb-24">
         <div className="flex items-end justify-between mb-8">
           <h2 className="text-3xl font-semibold">Upcoming Events</h2>
           <Link href="/calendar" className="text-cyan-400 text-sm hover:underline">View all →</Link>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {[
-            { title: "Friday Night Social", style: "Ballroom", place: "Brainerd", time: "Fri 7:00 PM", tag: "Social" },
-            { title: "Beginner Line Dancing", style: "Country", place: "Baxter", time: "Sat 2:00 PM", tag: "Class" },
-            { title: "Swing Night", style: "Swing", place: "Nisswa", time: "Sun 6:30 PM", tag: "Social" },
-          ].map((e) => (
-            <div key={e.title} className="group glass rounded-2xl p-6 hover:border-cyan-500/30 transition border border-transparent">
-              <div className="flex justify-between items-start mb-4">
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400">{e.tag}</span>
-                <span className="text-xs text-slate-500">{e.style}</span>
+        {!events || events.length === 0 ? (
+          <div className="glass rounded-2xl p-12 text-center text-slate-400">
+            No events yet. Be the first to post one!
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {events.map((e) => (
+              <div key={e.id} className="group glass rounded-2xl p-6 hover:border-cyan-500/30 transition border border-transparent">
+                <div className="flex justify-between items-start mb-4">
+                  <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400">
+                    {e.dance_style || "Event"}
+                  </span>
+                </div>
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-cyan-300 transition">{e.title}</h3>
+                <p className="text-slate-400 text-sm">
+                  {e.location} • {format(new Date(e.start_time), "EEE MMM d, h:mm a")}
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2 group-hover:text-cyan-300 transition">{e.title}</h3>
-              <p className="text-slate-400 text-sm">{e.place} • {e.time}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
