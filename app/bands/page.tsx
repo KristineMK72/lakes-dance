@@ -8,7 +8,7 @@ export default async function BandsPage() {
       const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient();
       const { data } = await supabase
-        .from("bands")
+        .from("lakes_bands")
         .select("*")
         .order("created_at", { ascending: false });
       bands = data || [];
