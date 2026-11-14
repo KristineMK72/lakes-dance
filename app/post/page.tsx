@@ -1,6 +1,11 @@
 import Link from "next/link";
+import { createEvent } from "../events/actions";
 
-export default function PostEventPage() {
+export default function PostEventPage({
+  searchParams,
+}: {
+  searchParams: { message?: string };
+}) {
   return (
     <div className="min-h-screen">
       <header className="border-b border-white/10 glass">
@@ -16,29 +21,32 @@ export default function PostEventPage() {
       <main className="mx-auto max-w-2xl px-6 py-12">
         <h1 className="text-4xl font-bold mb-2">Post a Dance Event</h1>
         <p className="text-slate-400 mb-8">Share an upcoming social, class, or gathering with the community.</p>
+        {searchParams?.message && (
+          <p className="mb-4 text-sm text-cyan-400">{searchParams.message}</p>
+        )}
 
-        <form className="space-y-5">
+        <form action={createEvent} className="space-y-5">
           <div>
             <label className="block text-sm mb-2 text-slate-300">Event Title</label>
-            <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Friday Night Social" />
+            <input name="title" required className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Friday Night Social" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm mb-2 text-slate-300">Date & Time</label>
-              <input type="datetime-local" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
+              <input name="start_time" type="datetime-local" required className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
             </div>
             <div>
               <label className="block text-sm mb-2 text-slate-300">Dance Style</label>
-              <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Ballroom, Line, Swing..." />
+              <input name="dance_style" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Ballroom, Line, Swing..." />
             </div>
           </div>
           <div>
             <label className="block text-sm mb-2 text-slate-300">Location</label>
-            <input className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Venue or address" />
+            <input name="location" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Venue or address" />
           </div>
           <div>
             <label className="block text-sm mb-2 text-slate-300">Description</label>
-            <textarea rows={4} className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Tell people what to expect..." />
+            <textarea name="description" rows={4} className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" placeholder="Tell people what to expect..." />
           </div>
           <button type="submit" className="w-full bg-cyan-500 hover:bg-cyan-400 text-white py-4 rounded-xl font-medium text-lg transition">
             Publish Event
