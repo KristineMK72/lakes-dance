@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { createEvent } from "../events/actions";
 
-export default function PostEventPage({
+export default async function PostEventPage({
   searchParams,
 }: {
-  searchParams: { message?: string };
+  searchParams: Promise<{ message?: string }>;
 }) {
+  const params = await searchParams;
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-white/10 glass">
@@ -21,8 +23,8 @@ export default function PostEventPage({
       <main className="mx-auto max-w-2xl px-6 py-12">
         <h1 className="text-4xl font-bold mb-2">Post a Dance Event</h1>
         <p className="text-slate-400 mb-8">Share an upcoming social, class, or gathering with the community.</p>
-        {searchParams?.message && (
-          <p className="mb-4 text-sm text-cyan-400">{searchParams.message}</p>
+        {params?.message && (
+          <p className="mb-4 text-sm text-cyan-400">{params.message}</p>
         )}
 
         <form action={createEvent} className="space-y-5">
