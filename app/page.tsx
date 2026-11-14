@@ -4,6 +4,8 @@ import { rsvp } from "./events/rsvp-actions";
 import { saveEvent } from "./events/save-actions";
 import { signOut } from "./auth/actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   let events: any[] = [];
   let user: any = null;
