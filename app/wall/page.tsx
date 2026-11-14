@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { postToWall, deleteWallPost } from "./actions";
 import { signOut } from "../auth/actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function WallPage({
   searchParams,
 }: {
