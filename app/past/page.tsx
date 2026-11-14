@@ -9,8 +9,8 @@ export default async function PastEventsPage() {
       const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient();
       const { data } = await supabase
-        .from("events")
-        .select("*, event_photos(*)")
+        .from("lakes_events")
+        .select("*, lakes_event_photos(*)")
         .lt("start_time", new Date().toISOString())
         .order("start_time", { ascending: false })
         .limit(20);
@@ -55,9 +55,9 @@ export default async function PastEventsPage() {
                     {format(new Date(event.start_time), "MMMM d, yyyy")} • {event.location}
                   </p>
                 </div>
-                {event.event_photos && event.event_photos.length > 0 ? (
+                {event.lakes_event_photos && event.lakes_event_photos.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {event.event_photos.map((photo: any) => (
+                    {event.lakes_event_photos.map((photo: any) => (
                       <div key={photo.id} className="aspect-square rounded-xl overflow-hidden glass">
                         <img src={photo.photo_url} alt={photo.caption || "Event photo"} className="w-full h-full object-cover" />
                       </div>
