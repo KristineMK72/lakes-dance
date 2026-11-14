@@ -4,6 +4,8 @@ import { updateProfile } from "./actions";
 import { postToWall } from "../wall/actions";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProfilePage() {
   let profile: any = null;
   let user: any = null;
