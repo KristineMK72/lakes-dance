@@ -1,14 +1,25 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 
 export default async function Home() {
-  const supabase = await createClient();
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .order("start_time", { ascending: true })
-    .limit(6);
+  let events: any[] = [];
+
+  // Only try Supabase if the env vars are actually set
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    try {
+      const { createClient } = await import("@/lib/supabase/server");
+      const supabase = await createClient();
+      const { data } = await supabase
+        .from("events")
+        .select("*")
+        .order("start_time", { ascending: true })
+        .limit(6);
+      events = data || [];
+    } catch (e) {
+      console.error("Supabase fetch failed:", e);
+      events = [];
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -52,7 +63,7 @@ export default async function Home() {
           <h2 className="text-3xl font-semibold gradient-text">Upcoming Events</h2>
           <Link href="/calendar" className="text-cyan-400 text-sm hover:underline">View all →</Link>
         </div>
-        {!events || events.length === 0 ? (
+        {events.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center text-slate-400">
             No events yet. Be the first to post one!
           </div>
