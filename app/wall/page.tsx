@@ -2,6 +2,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { postToWall } from "./actions";
+import { signOut } from "../auth/actions";
 
 export default async function WallPage() {
   const supabase = await createClient();
@@ -21,14 +22,23 @@ export default async function WallPage() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">LD</div>
             <span className="text-xl font-semibold">Lakes Dance</span>
           </Link>
-          <Link href="/" className="text-sm text-slate-300 hover:text-white">Home</Link>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-sm text-slate-300 hover:text-white">Home</Link>
+            {user && (
+              <form action={signOut}>
+                <button type="submit" className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-full text-xs font-medium">
+                  Sign Out
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-10">
         <h1 className="text-3xl font-bold mb-6">Community Wall</h1>
 
-        {user && (
+        {user ? (
           <form action={postToWall} encType="multipart/form-data" className="glass rounded-2xl p-6 mb-8 space-y-3">
             <textarea
               name="content"
@@ -52,6 +62,11 @@ export default async function WallPage() {
               Post
             </button>
           </form>
+        ) : (
+          <div className="glass rounded-2xl p-6 mb-8 text-center">
+            <p className="text-slate-400 mb-3">Sign in to post on the wall.</p>
+            <Link href="/login" className="text-cyan-400 hover:underline">Sign in</Link>
+          </div>
         )}
 
         <div className="space-y-4">
