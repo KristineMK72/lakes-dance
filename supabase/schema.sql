@@ -26,7 +26,7 @@ create table if not exists public.lakes_events (
   created_at timestamptz default now()
 );
 
--- Photos from past events
+-- Photos from past events / outings
 create table if not exists public.lakes_event_photos (
   id uuid default gen_random_uuid() primary key,
   event_id uuid references public.lakes_events(id) on delete cascade,
@@ -57,12 +57,33 @@ create table if not exists public.lakes_rsvps (
   unique(event_id, user_id)
 );
 
+-- Saved events for personal calendar
+create table if not exists public.lakes_saved_events (
+  id uuid default gen_random_uuid() primary key,
+  event_id uuid references public.lakes_events(id) on delete cascade,
+  user_id uuid references public.lakes_profiles(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique(event_id, user_id)
+);
+
+-- Personal wall posts (Facebook-style)
+create table if not exists public.lakes_wall_posts (
+  id uuid default gen_random_uuid() primary key,
+  author_id uuid references public.lakes_profiles(id) on delete cascade,
+  wall_user_id uuid references public.lakes_profiles(id) on delete cascade,
+  content text,
+  image_url text,
+  created_at timestamptz default now()
+);
+
 -- Enable RLS
 alter table public.lakes_profiles enable row level security;
 alter table public.lakes_events enable row level security;
 alter table public.lakes_event_photos enable row level security;
 alter table public.lakes_bands enable row level security;
 alter table public.lakes_rsvps enable row level security;
+alter table public.lakes_saved_events enable row level security;
+alter table public.lakes_wall_posts enable row level security;
 
 -- Policies
 create policy "Public lakes profiles are viewable by everyone" on public.lakes_profiles for select using (true);
@@ -87,6 +108,14 @@ create policy "Lakes RSVPs are viewable by everyone" on public.lakes_rsvps for s
 create policy "Authenticated users can create lakes rsvps" on public.lakes_rsvps for insert with check (auth.uid() = user_id);
 create policy "Users can update own lakes rsvps" on public.lakes_rsvps for update using (auth.uid() = user_id);
 create policy "Users can delete own lakes rsvps" on public.lakes_rsvps for delete using (auth.uid() = user_id);
+
+create policy "Users can view own saved events" on public.lakes_saved_events for select using (auth.uid() = user_id);
+create policy "Users can save events" on public.lakes_saved_events for insert with check (auth.uid() = user_id);
+create policy "Users can unsave events" on public.lakes_saved_events for delete using (auth.uid() = user_id);
+
+create policy "Wall posts are viewable by everyone" on public.lakes_wall_posts for select using (true);
+create policy "Authenticated users can create wall posts" on public.lakes_wall_posts for insert with check (auth.uid() = author_id);
+create policy "Users can delete own wall posts" on public.lakes_wall_posts for delete using (auth.uid() = author_id);
 
 -- Auto-create lakes profile on signup
 create or replace function public.handle_new_lakes_user()
