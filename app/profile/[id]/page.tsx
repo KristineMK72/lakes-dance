@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PublicProfilePage({
@@ -23,6 +24,13 @@ export default async function PublicProfilePage({
     );
   }
 
+  const { data: posts } = await supabase
+    .from("lakes_wall_posts")
+    .select("*")
+    .eq("author_id", id)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-white/10 glass">
@@ -36,7 +44,7 @@ export default async function PublicProfilePage({
       </header>
 
       <main className="mx-auto max-w-2xl px-6 py-12">
-        <div className="glass rounded-3xl p-8 text-center">
+        <div className="glass rounded-3xl p-8 text-center mb-8">
           <div className="w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-4xl font-bold overflow-hidden mb-4">
             {profile.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -46,6 +54,29 @@ export default async function PublicProfilePage({
           </div>
           <h1 className="text-3xl font-bold mb-2">{profile.full_name || "Dancer"}</h1>
           {profile.bio && <p className="text-slate-300 max-w-md mx-auto">{profile.bio}</p>}
+        </div>
+
+        <h2 className="text-xl font-semibold mb-4">Posts</h2>
+        <div className="space-y-4">
+          {(posts || []).map((post: any) => {
+            const isVideo = post.image_url && /\.(mp4|webm|mov)$/i.test(post.image_url);
+            return (
+              <div key={post.id} className="glass rounded-2xl p-5">
+                <div className="text-xs text-slate-400 mb-2">{format(new Date(post.created_at), "MMM d, yyyy")}</div>
+                {post.content && <p className="text-slate-200 mb-3">{post.content}</p>}
+                {post.image_url && (
+                  isVideo ? (
+                    <video src={post.image_url} controls className="w-full rounded-xl max-h-96" />
+                  ) : (
+                    <img src={post.image_url} alt="" className="w-full rounded-xl max-h-96 object-cover" />
+                  )
+                )}
+              </div>
+            );
+          })}
+          {(!posts || posts.length === 0) && (
+            <div className="glass rounded-2xl p-8 text-center text-slate-400">No posts yet.</div>
+          )}
         </div>
       </main>
     </div>
