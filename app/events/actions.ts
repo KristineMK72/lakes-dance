@@ -26,7 +26,7 @@ export async function createEvent(formData: FormData) {
   const start_time = formData.get("start_time") as string;
   const dance_style = formData.get("dance_style") as string;
 
-  const { error } = await supabase.from("events").insert({
+  const { error } = await supabase.from("lakes_events").insert({
     user_id: user.id,
     title,
     description,
