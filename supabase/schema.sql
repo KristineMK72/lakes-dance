@@ -1,7 +1,9 @@
--- Run this in the Supabase SQL editor
+-- Lakes Dance tables for shared Supabase project
+-- Run this in the SQL Editor of KristineMK72's Project
+-- (Safe to run alongside existing tables like party_rsvps)
 
--- Profiles (includes avatar_url for profile images)
-create table if not exists public.profiles (
+-- Profiles
+create table if not exists public.lakes_profiles (
   id uuid references auth.users on delete cascade primary key,
   username text unique,
   full_name text,
@@ -11,9 +13,9 @@ create table if not exists public.profiles (
 );
 
 -- Dance events
-create table if not exists public.events (
+create table if not exists public.lakes_events (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references public.profiles(id) on delete cascade,
+  user_id uuid references public.lakes_profiles(id) on delete cascade,
   title text not null,
   description text,
   location text,
@@ -25,19 +27,19 @@ create table if not exists public.events (
 );
 
 -- Photos from past events
-create table if not exists public.event_photos (
+create table if not exists public.lakes_event_photos (
   id uuid default gen_random_uuid() primary key,
-  event_id uuid references public.events(id) on delete cascade,
-  user_id uuid references public.profiles(id) on delete cascade,
+  event_id uuid references public.lakes_events(id) on delete cascade,
+  user_id uuid references public.lakes_profiles(id) on delete cascade,
   photo_url text not null,
   caption text,
   created_at timestamptz default now()
 );
 
 -- Bands
-create table if not exists public.bands (
+create table if not exists public.lakes_bands (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references public.profiles(id) on delete cascade,
+  user_id uuid references public.lakes_profiles(id) on delete cascade,
   name text not null,
   genre text,
   description text,
@@ -46,60 +48,63 @@ create table if not exists public.bands (
 );
 
 -- RSVPs
-create table if not exists public.rsvps (
+create table if not exists public.lakes_rsvps (
   id uuid default gen_random_uuid() primary key,
-  event_id uuid references public.events(id) on delete cascade,
-  user_id uuid references public.profiles(id) on delete cascade,
+  event_id uuid references public.lakes_events(id) on delete cascade,
+  user_id uuid references public.lakes_profiles(id) on delete cascade,
   status text default 'going' check (status in ('going', 'maybe', 'not_going')),
   created_at timestamptz default now(),
   unique(event_id, user_id)
 );
 
 -- Enable RLS
-alter table public.profiles enable row level security;
-alter table public.events enable row level security;
-alter table public.event_photos enable row level security;
-alter table public.bands enable row level security;
-alter table public.rsvps enable row level security;
+alter table public.lakes_profiles enable row level security;
+alter table public.lakes_events enable row level security;
+alter table public.lakes_event_photos enable row level security;
+alter table public.lakes_bands enable row level security;
+alter table public.lakes_rsvps enable row level security;
 
 -- Policies
-create policy "Public profiles are viewable by everyone" on public.profiles for select using (true);
-create policy "Users can insert own profile" on public.profiles for insert with check (auth.uid() = id);
-create policy "Users can update own profile" on public.profiles for update using (auth.uid() = id);
+create policy "Public lakes profiles are viewable by everyone" on public.lakes_profiles for select using (true);
+create policy "Users can insert own lakes profile" on public.lakes_profiles for insert with check (auth.uid() = id);
+create policy "Users can update own lakes profile" on public.lakes_profiles for update using (auth.uid() = id);
 
-create policy "Events are viewable by everyone" on public.events for select using (true);
-create policy "Authenticated users can create events" on public.events for insert with check (auth.uid() = user_id);
-create policy "Users can update own events" on public.events for update using (auth.uid() = user_id);
-create policy "Users can delete own events" on public.events for delete using (auth.uid() = user_id);
+create policy "Lakes events are viewable by everyone" on public.lakes_events for select using (true);
+create policy "Authenticated users can create lakes events" on public.lakes_events for insert with check (auth.uid() = user_id);
+create policy "Users can update own lakes events" on public.lakes_events for update using (auth.uid() = user_id);
+create policy "Users can delete own lakes events" on public.lakes_events for delete using (auth.uid() = user_id);
 
-create policy "Event photos are viewable by everyone" on public.event_photos for select using (true);
-create policy "Authenticated users can upload photos" on public.event_photos for insert with check (auth.uid() = user_id);
-create policy "Users can delete own photos" on public.event_photos for delete using (auth.uid() = user_id);
+create policy "Lakes event photos are viewable by everyone" on public.lakes_event_photos for select using (true);
+create policy "Authenticated users can upload lakes photos" on public.lakes_event_photos for insert with check (auth.uid() = user_id);
+create policy "Users can delete own lakes photos" on public.lakes_event_photos for delete using (auth.uid() = user_id);
 
-create policy "Bands are viewable by everyone" on public.bands for select using (true);
-create policy "Authenticated users can create bands" on public.bands for insert with check (auth.uid() = user_id);
-create policy "Users can update own bands" on public.bands for update using (auth.uid() = user_id);
-create policy "Users can delete own bands" on public.bands for delete using (auth.uid() = user_id);
+create policy "Lakes bands are viewable by everyone" on public.lakes_bands for select using (true);
+create policy "Authenticated users can create lakes bands" on public.lakes_bands for insert with check (auth.uid() = user_id);
+create policy "Users can update own lakes bands" on public.lakes_bands for update using (auth.uid() = user_id);
+create policy "Users can delete own lakes bands" on public.lakes_bands for delete using (auth.uid() = user_id);
 
-create policy "RSVPs are viewable by everyone" on public.rsvps for select using (true);
-create policy "Authenticated users can create rsvps" on public.rsvps for insert with check (auth.uid() = user_id);
-create policy "Users can update own rsvps" on public.rsvps for update using (auth.uid() = user_id);
-create policy "Users can delete own rsvps" on public.rsvps for delete using (auth.uid() = user_id);
+create policy "Lakes RSVPs are viewable by everyone" on public.lakes_rsvps for select using (true);
+create policy "Authenticated users can create lakes rsvps" on public.lakes_rsvps for insert with check (auth.uid() = user_id);
+create policy "Users can update own lakes rsvps" on public.lakes_rsvps for update using (auth.uid() = user_id);
+create policy "Users can delete own lakes rsvps" on public.lakes_rsvps for delete using (auth.uid() = user_id);
 
--- Auto-create profile on signup
-create or replace function public.handle_new_user()
+-- Auto-create lakes profile on signup
+create or replace function public.handle_new_lakes_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, new.raw_user_meta_data->>'full_name');
+  insert into public.lakes_profiles (id, full_name)
+  values (new.id, new.raw_user_meta_data->>'full_name')
+  on conflict (id) do nothing;
   return new;
 end;
 $$ language plpgsql security definer;
 
-create or replace trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
-
--- Storage bucket for avatars and event photos (run in Supabase dashboard or SQL)
--- insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true);
--- insert into storage.buckets (id, name, public) values ('event-photos', 'event-photos', true);
+-- Only create the trigger if it doesn't already exist
+do $$
+begin
+  if not exists (select 1 from pg_trigger where tgname = 'on_auth_user_created_lakes') then
+    create trigger on_auth_user_created_lakes
+      after insert on auth.users
+      for each row execute procedure public.handle_new_lakes_user();
+  end if;
+end $$;
