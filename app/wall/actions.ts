@@ -54,3 +54,17 @@ export async function postToWall(formData: FormData) {
   revalidatePath(`/profile/${user.id}`);
   redirect("/wall");
 }
+
+export async function deleteWallPost(formData: FormData) {
+  const postId = formData.get("post_id") as string;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  await supabase.from("lakes_wall_posts").delete().eq("id", postId).eq("author_id", user.id);
+
+  revalidatePath("/wall");
+  revalidatePath("/profile");
+  revalidatePath(`/profile/${user.id}`);
+}
