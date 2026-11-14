@@ -5,7 +5,12 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export async function login(formData: FormData) {
-  const supabase = await createClient();
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    redirect("/login?message=Supabase is not configured yet. Add your environment variables in Vercel.");
+  }
 
   const data = {
     email: formData.get("email") as string,
@@ -23,7 +28,12 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient();
+  let supabase;
+  try {
+    supabase = await createClient();
+  } catch {
+    redirect("/signup?message=Supabase is not configured yet. Add your environment variables in Vercel.");
+  }
 
   const data = {
     email: formData.get("email") as string,
@@ -46,8 +56,12 @@ export async function signup(formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  } catch {
+    // ignore
+  }
   revalidatePath("/", "layout");
   redirect("/login");
 }
