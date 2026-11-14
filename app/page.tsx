@@ -12,7 +12,14 @@ export default async function Home() {
       const supabase = await createClient();
       const { data } = await supabase
         .from("lakes_events")
-        .select("*, lakes_rsvps(count)")
+        .select(`
+          *,
+          lakes_rsvps(
+            user_id,
+            status,
+            lakes_profiles(full_name, avatar_url)
+          )
+        `)
         .gte("start_time", new Date().toISOString())
         .order("start_time", { ascending: true })
         .limit(6);
@@ -76,7 +83,8 @@ export default async function Home() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.map((e) => {
-              const going = e.lakes_rsvps?.[0]?.count ?? 0;
+              const goingList = (e.lakes_rsvps || []).filter((r: any) => r.status === "going");
+              const going = goingList.length;
               const mapsUrl = e.location
                 ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(e.location)}`
                 : null;
@@ -89,9 +97,36 @@ export default async function Home() {
                     <span className="text-xs text-slate-400">{going} going</span>
                   </div>
                   <h3 className="text-xl font-semibold mb-2 group-hover:text-cyan-200 transition">{e.title}</h3>
-                  <p className="text-slate-400 text-sm mb-4">
+                  <p className="text-slate-400 text-sm mb-3">
                     {e.location} • {format(new Date(e.start_time), "EEE MMM d, h:mm a")}
                   </p>
+
+                  {goingList.length > 0 && (
+                    <div className="flex items-center gap-1 mb-4">
+                      {goingList.slice(0, 5).map((r: any) => {
+                        const p = r.lakes_profiles;
+                        const name = p?.full_name || "?";
+                        return (
+                          <Link
+                            key={r.user_id}
+                            href={`/profile/${r.user_id}`}
+                            className="w-7 h-7 rounded-full bg-cyan-500/20 flex items-center justify-center text-[10px] font-medium text-cyan-300 overflow-hidden border border-white/10"
+                            title={name}
+                          >
+                            {p?.avatar_url ? (
+                              <img src={p.avatar_url} alt={name} className="w-full h-full object-cover" />
+                            ) : (
+                              name[0].toUpperCase()
+                            )}
+                          </Link>
+                        );
+                      })}
+                      {goingList.length > 5 && (
+                        <span className="text-xs text-slate-500 ml-1">+{goingList.length - 5}</span>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-2">
                     <form action={rsvp}>
                       <input type="hidden" name="event_id" value={e.id} />
