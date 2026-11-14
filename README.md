@@ -1,20 +1,18 @@
 # Lakes Dance
 
-A social platform for the Brainerd Lakes area where people can discover, post, and RSVP to dance events. Think Facebook groups + a beautiful calendar for local dance opportunities (ballroom, line dancing, socials, classes, etc.).
+A modern social platform for the Brainerd Lakes area where people can discover, post, and join dance events. Clean dark UI with glassmorphism, local community feel, and a calendar.
 
-## Features (planned / starter)
+## Current Pages
 
-- User sign-up & login (Supabase Auth)
-- Create and post dance events
-- Event feed / social posts
-- Calendar view of upcoming events
-- Profiles and community interaction
-- Deployed on Vercel
+- `/` — Hero + upcoming events feed
+- `/calendar` — Visual calendar with event highlights
+- `/post` — Post a new dance event
+- `/login` & `/signup` — Auth screens (UI ready; Supabase wiring next)
 
 ## Tech Stack
 
 - **Next.js 15** (App Router) + TypeScript + Tailwind CSS
-- **Supabase** (Auth, Postgres database, Storage, Realtime)
+- **Supabase** (Auth, Postgres, RLS) — schema ready in `supabase/schema.sql`
 - **Vercel** for deployment
 
 ## Getting Started
@@ -24,10 +22,6 @@ A social platform for the Brainerd Lakes area where people can discover, post, a
 3. Copy `.env.local.example` to `.env.local` and fill in your Supabase URL + anon key
 4. Run the SQL in `supabase/schema.sql` in the Supabase SQL editor
 5. `npm install && npm run dev`
-
-## Name
-
-Working title: **Lakes Dance**. Alternatives considered: DanceLakes, RhythmLakes, StepUpLakes, LakesideSteps.
 
 ---
 
