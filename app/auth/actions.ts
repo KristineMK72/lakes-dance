@@ -45,12 +45,19 @@ export async function signup(formData: FormData) {
     },
   };
 
-  const { error } = await supabase.auth.signUp(data);
+  const { data: signupData, error } = await supabase.auth.signUp(data);
 
   if (error) {
     redirect("/signup?message=Could not create account");
   }
 
+  // If email confirmation is off, Supabase returns a session immediately
+  if (signupData.session) {
+    revalidatePath("/", "layout");
+    redirect("/");
+  }
+
+  // Otherwise fall back to the email confirmation message
   revalidatePath("/", "layout");
   redirect("/login?message=Check email to continue sign in process");
 }
