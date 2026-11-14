@@ -44,7 +44,7 @@ export default async function PastEventsPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-12">
         <h1 className="text-4xl font-bold gradient-text mb-2">Past Events</h1>
-        <p className="text-slate-400 mb-10">Photos and memories from previous dances</p>
+        <p className="text-slate-400 mb-10">Photos and videos from previous dances</p>
 
         {pastEvents.length === 0 ? (
           <div className="glass rounded-2xl p-12 text-center text-slate-400">
@@ -65,8 +65,8 @@ export default async function PastEventsPage() {
                   <form action={uploadEventPhoto} encType="multipart/form-data" className="glass rounded-2xl p-4 mb-6 flex flex-wrap gap-3 items-end">
                     <input type="hidden" name="event_id" value={event.id} />
                     <div className="flex-1 min-w-[200px]">
-                      <label className="block text-xs text-slate-400 mb-1">Add a photo</label>
-                      <input name="photo" type="file" accept="image/*" required className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-cyan-500/20 file:text-cyan-300" />
+                      <label className="block text-xs text-slate-400 mb-1">Add photo or video</label>
+                      <input name="photo" type="file" accept="image/*,video/*" required className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-medium file:bg-cyan-500/20 file:text-cyan-300" />
                     </div>
                     <div className="flex-1 min-w-[160px]">
                       <label className="block text-xs text-slate-400 mb-1">Caption (optional)</label>
@@ -80,14 +80,21 @@ export default async function PastEventsPage() {
 
                 {event.lakes_event_photos && event.lakes_event_photos.length > 0 ? (
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {event.lakes_event_photos.map((photo: any) => (
-                      <div key={photo.id} className="aspect-square rounded-xl overflow-hidden glass">
-                        <img src={photo.photo_url} alt={photo.caption || "Event photo"} className="w-full h-full object-cover" />
-                      </div>
-                    ))}
+                    {event.lakes_event_photos.map((photo: any) => {
+                      const isVideo = photo.photo_url && /\.(mp4|webm|mov)$/i.test(photo.photo_url);
+                      return (
+                        <div key={photo.id} className="aspect-square rounded-xl overflow-hidden glass">
+                          {isVideo ? (
+                            <video src={photo.photo_url} controls className="w-full h-full object-cover" />
+                          ) : (
+                            <img src={photo.photo_url} alt={photo.caption || "Event photo"} className="w-full h-full object-cover" />
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
-                  <p className="text-slate-500 text-sm">No photos yet for this event.</p>
+                  <p className="text-slate-500 text-sm">No photos or videos yet for this event.</p>
                 )}
               </div>
             ))}
