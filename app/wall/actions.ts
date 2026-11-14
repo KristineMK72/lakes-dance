@@ -16,25 +16,30 @@ export async function postToWall(formData: FormData) {
     redirect("/login?message=Sign in to post");
   }
 
-  // Make sure a profile row exists (foreign key requirement)
   await supabase.from("lakes_profiles").upsert({
     id: user.id,
     full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Dancer",
   }, { onConflict: "id" });
 
   if (file && file.size > 0) {
+    // Soft limit — warn on very large files
+    if (file.size > 50 * 1024 * 1024) {
+      redirect("/wall?message=" + encodeURIComponent("File is too large. Try a smaller video (under 50 MB)."));
+    }
+
     const ext = file.name.split(".").pop() || "jpg";
     const path = `${user.id}/wall/${Date.now()}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("lakes-images")
-      .upload(path, file, { upsert: false, contentType: file.type });
+      .upload(path, file, { upsert: false, contentType: file.type || "application/octet-stream" });
 
-    if (!uploadError) {
-      const { data } = supabase.storage.from("lakes-images").getPublicUrl(path);
-      mediaUrl = data.publicUrl;
-    } else {
+    if (uploadError) {
       console.error("Upload error:", uploadError);
+      redirect("/wall?message=" + encodeURIComponent("Upload failed: " + (uploadError.message || "unknown error")));
     }
+
+    const { data } = supabase.storage.from("lakes-images").getPublicUrl(path);
+    mediaUrl = data.publicUrl;
   }
 
   const { error } = await supabase.from("lakes_wall_posts").insert({
