@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
-import { postToWall } from "./actions";
+import { postToWall, deleteWallPost } from "./actions";
 import { signOut } from "../auth/actions";
 
 export default async function WallPage({
@@ -81,20 +81,29 @@ export default async function WallPage({
         <div className="space-y-4">
           {(posts || []).map((post: any) => {
             const isVideo = post.image_url && /\.(mp4|webm|mov)$/i.test(post.image_url);
+            const isOwn = user && post.author_id === user.id;
             return (
               <div key={post.id} className="glass rounded-2xl p-5">
-                <div className="flex items-center gap-3 mb-3">
-                  <Link href={`/profile/${post.author_id}`} className="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-sm font-medium overflow-hidden">
-                    {post.author?.avatar_url ? (
-                      <img src={post.author.avatar_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      (post.author?.full_name || "D")[0]
-                    )}
-                  </Link>
-                  <div>
-                    <Link href={`/profile/${post.author_id}`} className="font-medium hover:text-cyan-300">{post.author?.full_name || "Dancer"}</Link>
-                    <div className="text-xs text-slate-400">{format(new Date(post.created_at), "MMM d, h:mm a")}</div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <Link href={`/profile/${post.author_id}`} className="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-sm font-medium overflow-hidden">
+                      {post.author?.avatar_url ? (
+                        <img src={post.author.avatar_url} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        (post.author?.full_name || "D")[0]
+                      )}
+                    </Link>
+                    <div>
+                      <Link href={`/profile/${post.author_id}`} className="font-medium hover:text-cyan-300">{post.author?.full_name || "Dancer"}</Link>
+                      <div className="text-xs text-slate-400">{format(new Date(post.created_at), "MMM d, h:mm a")}</div>
+                    </div>
                   </div>
+                  {isOwn && (
+                    <form action={deleteWallPost}>
+                      <input type="hidden" name="post_id" value={post.id} />
+                      <button type="submit" className="text-xs text-slate-500 hover:text-red-400 transition">Delete</button>
+                    </form>
+                  )}
                 </div>
                 <p className="text-slate-200">{post.content}</p>
                 {post.image_url && (
