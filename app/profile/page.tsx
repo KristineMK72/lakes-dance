@@ -61,7 +61,7 @@ export default async function ProfilePage() {
             </div>
           </div>
 
-          <form action={updateProfile} className="space-y-5">
+          <form action={updateProfile} encType="multipart/form-data" className="space-y-5">
             <div>
               <label className="block text-sm mb-2 text-slate-300">Full Name</label>
               <input name="full_name" defaultValue={profile?.full_name || ""} className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500" />
