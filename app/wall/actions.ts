@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 
 export async function postToWall(formData: FormData) {
   const content = formData.get("content") as string;
-  let imageUrl = formData.get("image_url") as string;
+  let mediaUrl = formData.get("image_url") as string;
   const file = formData.get("image_file") as File | null;
 
   const supabase = await createClient();
@@ -25,7 +25,7 @@ export async function postToWall(formData: FormData) {
 
     if (!uploadError) {
       const { data } = supabase.storage.from("lakes-images").getPublicUrl(path);
-      imageUrl = data.publicUrl;
+      mediaUrl = data.publicUrl;
     }
   }
 
@@ -33,8 +33,10 @@ export async function postToWall(formData: FormData) {
     author_id: user.id,
     wall_user_id: user.id,
     content,
-    image_url: imageUrl || null,
+    image_url: mediaUrl || null,
   });
 
   revalidatePath("/wall");
+  revalidatePath("/profile");
+  revalidatePath(`/profile/${user.id}`);
 }
