@@ -10,8 +10,8 @@ export default async function Home() {
       const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient();
       const { data } = await supabase
-        .from("events")
-        .select("*, rsvps(count)")
+        .from("lakes_events")
+        .select("*, lakes_rsvps(count)")
         .gte("start_time", new Date().toISOString())
         .order("start_time", { ascending: true })
         .limit(6);
@@ -74,7 +74,7 @@ export default async function Home() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.map((e) => {
-              const going = e.rsvps?.[0]?.count ?? 0;
+              const going = e.lakes_rsvps?.[0]?.count ?? 0;
               return (
                 <div key={e.id} className="group glass rounded-2xl p-6 hover:border-cyan-500/40 transition border border-transparent">
                   <div className="flex justify-between items-start mb-4">
