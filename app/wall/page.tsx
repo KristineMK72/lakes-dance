@@ -37,9 +37,15 @@ export default async function WallPage() {
               required
             />
             <input
+              name="image_file"
+              type="file"
+              accept="image/*"
+              className="w-full text-sm text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-medium file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30"
+            />
+            <input
               name="image_url"
               type="url"
-              placeholder="Optional image URL (photo from a dance outing)"
+              placeholder="Or paste an image URL"
               className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-500 text-sm"
             />
             <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white px-5 py-2 rounded-full text-sm font-medium">
