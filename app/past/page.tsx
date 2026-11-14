@@ -3,6 +3,8 @@ import { format } from "date-fns";
 import { uploadEventPhoto } from "./actions";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 export default async function PastEventsPage() {
   let pastEvents: any[] = [];
   let user: any = null;
