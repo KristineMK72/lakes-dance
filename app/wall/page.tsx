@@ -29,7 +29,7 @@ export default async function WallPage() {
         <h1 className="text-3xl font-bold mb-6">Community Wall</h1>
 
         {user && (
-          <form action={postToWall} className="glass rounded-2xl p-6 mb-8 space-y-3">
+          <form action={postToWall} encType="multipart/form-data" className="glass rounded-2xl p-6 mb-8 space-y-3">
             <textarea
               name="content"
               placeholder="Share something with the Lakes Dance community..."
