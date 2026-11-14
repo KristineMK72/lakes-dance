@@ -12,6 +12,7 @@ export default async function Home() {
       const { data } = await supabase
         .from("events")
         .select("*, rsvps(count)")
+        .gte("start_time", new Date().toISOString())
         .order("start_time", { ascending: true })
         .limit(6);
       events = data || [];
@@ -29,10 +30,12 @@ export default async function Home() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">LD</div>
             <span className="text-xl font-semibold tracking-tight gradient-text">Lakes Dance</span>
           </div>
-          <nav className="flex items-center gap-6 text-sm">
+          <nav className="flex items-center gap-5 text-sm">
             <Link href="/calendar" className="text-slate-300 hover:text-white transition">Calendar</Link>
             <Link href="/bands" className="text-slate-300 hover:text-white transition">Bands</Link>
-            <Link href="/post" className="text-slate-300 hover:text-white transition">Post Event</Link>
+            <Link href="/past" className="text-slate-300 hover:text-white transition">Past</Link>
+            <Link href="/post" className="text-slate-300 hover:text-white transition">Post</Link>
+            <Link href="/profile" className="text-slate-300 hover:text-white transition">Profile</Link>
             <Link href="/login" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium transition">Sign In</Link>
           </nav>
         </div>
