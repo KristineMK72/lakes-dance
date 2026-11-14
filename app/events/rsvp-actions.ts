@@ -18,7 +18,7 @@ export async function rsvp(formData: FormData) {
   const event_id = formData.get("event_id") as string;
   const status = (formData.get("status") as string) || "going";
 
-  const { error } = await supabase.from("rsvps").upsert({
+  const { error } = await supabase.from("lakes_rsvps").upsert({
     event_id,
     user_id: user.id,
     status,
