@@ -2,14 +2,19 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { rsvp } from "./events/rsvp-actions";
 import { saveEvent } from "./events/save-actions";
+import { signOut } from "./auth/actions";
 
 export default async function Home() {
   let events: any[] = [];
+  let user: any = null;
 
   if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     try {
       const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient();
+      const { data: { user: u } } = await supabase.auth.getUser();
+      user = u;
+
       const { data } = await supabase
         .from("lakes_events")
         .select(`
@@ -45,7 +50,15 @@ export default async function Home() {
             <Link href="/past" className="text-slate-300 hover:text-white transition">Past</Link>
             <Link href="/post" className="text-slate-300 hover:text-white transition">Post</Link>
             <Link href="/profile" className="text-slate-300 hover:text-white transition">Profile</Link>
-            <Link href="/login" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium transition">Sign In</Link>
+            {user ? (
+              <form action={signOut}>
+                <button type="submit" className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-full text-sm font-medium transition">
+                  Sign Out
+                </button>
+              </form>
+            ) : (
+              <Link href="/login" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium transition">Sign In</Link>
+            )}
           </nav>
         </div>
       </header>
