@@ -12,7 +12,7 @@ export default async function ProfilePage() {
       const { data: { user: u } } = await supabase.auth.getUser();
       user = u;
       if (u) {
-        const { data } = await supabase.from("profiles").select("*").eq("id", u.id).single();
+        const { data } = await supabase.from("lakes_profiles").select("*").eq("id", u.id).single();
         profile = data;
       }
     } catch (e) {
