@@ -1,11 +1,12 @@
 -- Run this in the Supabase SQL editor
 
--- Profiles
+-- Profiles (includes avatar_url for profile images)
 create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   username text unique,
   full_name text,
   avatar_url text,
+  bio text,
   created_at timestamptz default now()
 );
 
@@ -23,7 +24,17 @@ create table if not exists public.events (
   created_at timestamptz default now()
 );
 
--- Bands people want to share
+-- Photos from past events
+create table if not exists public.event_photos (
+  id uuid default gen_random_uuid() primary key,
+  event_id uuid references public.events(id) on delete cascade,
+  user_id uuid references public.profiles(id) on delete cascade,
+  photo_url text not null,
+  caption text,
+  created_at timestamptz default now()
+);
+
+-- Bands
 create table if not exists public.bands (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references public.profiles(id) on delete cascade,
@@ -34,7 +45,7 @@ create table if not exists public.bands (
   created_at timestamptz default now()
 );
 
--- RSVPs for events
+-- RSVPs
 create table if not exists public.rsvps (
   id uuid default gen_random_uuid() primary key,
   event_id uuid references public.events(id) on delete cascade,
@@ -47,6 +58,7 @@ create table if not exists public.rsvps (
 -- Enable RLS
 alter table public.profiles enable row level security;
 alter table public.events enable row level security;
+alter table public.event_photos enable row level security;
 alter table public.bands enable row level security;
 alter table public.rsvps enable row level security;
 
@@ -59,6 +71,10 @@ create policy "Events are viewable by everyone" on public.events for select usin
 create policy "Authenticated users can create events" on public.events for insert with check (auth.uid() = user_id);
 create policy "Users can update own events" on public.events for update using (auth.uid() = user_id);
 create policy "Users can delete own events" on public.events for delete using (auth.uid() = user_id);
+
+create policy "Event photos are viewable by everyone" on public.event_photos for select using (true);
+create policy "Authenticated users can upload photos" on public.event_photos for insert with check (auth.uid() = user_id);
+create policy "Users can delete own photos" on public.event_photos for delete using (auth.uid() = user_id);
 
 create policy "Bands are viewable by everyone" on public.bands for select using (true);
 create policy "Authenticated users can create bands" on public.bands for insert with check (auth.uid() = user_id);
@@ -83,3 +99,7 @@ $$ language plpgsql security definer;
 create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Storage bucket for avatars and event photos (run in Supabase dashboard or SQL)
+-- insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true);
+-- insert into storage.buckets (id, name, public) values ('event-photos', 'event-photos', true);
