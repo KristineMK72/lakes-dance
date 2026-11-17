@@ -16,14 +16,14 @@ export async function updateProfile(formData: FormData) {
   if (!user) redirect("/login");
 
   let avatarUrl = formData.get("avatar_url") as string;
-  const file = formData.get("avatar_file") as File | null;
+  const avatarFile = formData.get("avatar_file") as File | null;
 
-  if (file && file.size > 0) {
-    const ext = file.name.split(".").pop() || "jpg";
+  if (avatarFile && avatarFile.size > 0) {
+    const ext = avatarFile.name.split(".").pop() || "jpg";
     const path = `${user.id}/avatar.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("lakes-images")
-      .upload(path, file, { upsert: true, contentType: file.type });
+      .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
 
     if (!uploadError) {
       const { data } = supabase.storage.from("lakes-images").getPublicUrl(path);
@@ -31,14 +31,32 @@ export async function updateProfile(formData: FormData) {
     }
   }
 
+  let coverUrl = formData.get("cover_url") as string;
+  const coverFile = formData.get("cover_file") as File | null;
+
+  if (coverFile && coverFile.size > 0) {
+    const ext = coverFile.name.split(".").pop() || "jpg";
+    const path = `${user.id}/cover.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("lakes-images")
+      .upload(path, coverFile, { upsert: true, contentType: coverFile.type });
+
+    if (!uploadError) {
+      const { data } = supabase.storage.from("lakes-images").getPublicUrl(path);
+      coverUrl = data.publicUrl;
+    }
+  }
+
   const { error } = await supabase.from("lakes_profiles").update({
     full_name: formData.get("full_name") as string,
     bio: formData.get("bio") as string,
     avatar_url: avatarUrl || null,
+    cover_url: coverUrl || null,
   }).eq("id", user.id);
 
   if (error) console.error(error);
 
   revalidatePath("/profile");
+  revalidatePath(`/profile/${user.id}`);
   redirect("/profile");
 }
