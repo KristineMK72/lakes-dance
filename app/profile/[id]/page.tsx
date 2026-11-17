@@ -35,14 +35,14 @@ export default async function PublicProfilePage({
   return (
     <div className="min-h-screen">
       <main className="mx-auto max-w-2xl px-4 sm:px-6 py-6 sm:py-10">
-        <div className="glass rounded-3xl overflow-hidden mb-6">
-          <div className="h-32 sm:h-40 bg-gradient-to-r from-cyan-600/40 to-blue-600/40 relative">
+        <div className="glass rounded-3xl mb-6">
+          <div className="h-28 sm:h-36 rounded-t-3xl overflow-hidden bg-gradient-to-r from-cyan-600/40 to-blue-600/40">
             {profile.cover_url && (
               <img src={profile.cover_url} alt="" className="w-full h-full object-cover" />
             )}
           </div>
-          <div className="px-5 sm:px-8 pb-6 -mt-12 text-center">
-            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-3xl font-bold overflow-hidden border-4 border-slate-900 mb-3">
+          <div className="px-5 sm:px-8 pb-6 text-center">
+            <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-3xl font-bold overflow-hidden border-4 border-slate-900 ring-4 ring-slate-900/80 -mt-10 mb-3">
               {profile.avatar_url ? (
                 <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
               ) : (
