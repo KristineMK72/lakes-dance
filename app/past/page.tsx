@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { format } from "date-fns";
 import { uploadEventPhoto } from "./actions";
 import { createClient } from "@/lib/supabase/server";
@@ -29,23 +28,8 @@ export default async function PastEventsPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-50 border-b border-white/10 glass">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">LD</div>
-            <span className="text-xl font-semibold tracking-tight gradient-text">Lakes Dance</span>
-          </Link>
-          <nav className="flex items-center gap-6 text-sm">
-            <Link href="/calendar" className="text-slate-300 hover:text-white transition">Calendar</Link>
-            <Link href="/wall" className="text-slate-300 hover:text-white transition">Wall</Link>
-            <Link href="/past" className="text-cyan-300">Past Events</Link>
-            <Link href="/profile" className="text-slate-300 hover:text-white transition">Profile</Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        <h1 className="text-4xl font-bold gradient-text mb-2">Past Events</h1>
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-12">
+        <h1 className="text-3xl sm:text-4xl font-bold gradient-text mb-2">Past Events</h1>
         <p className="text-slate-400 mb-10">Photos and videos from previous dances</p>
 
         {pastEvents.length === 0 ? (
@@ -57,7 +41,7 @@ export default async function PastEventsPage() {
             {pastEvents.map((event) => (
               <div key={event.id}>
                 <div className="mb-4">
-                  <h2 className="text-2xl font-semibold">{event.title}</h2>
+                  <h2 className="text-xl sm:text-2xl font-semibold">{event.title}</h2>
                   <p className="text-slate-400 text-sm">
                     {format(new Date(event.start_time), "MMMM d, yyyy")} • {event.location}
                   </p>
@@ -81,13 +65,13 @@ export default async function PastEventsPage() {
                 )}
 
                 {event.lakes_event_photos && event.lakes_event_photos.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                     {event.lakes_event_photos.map((photo: any) => {
                       const isVideo = photo.photo_url && /\.(mp4|webm|mov)$/i.test(photo.photo_url);
                       return (
                         <div key={photo.id} className="aspect-square rounded-xl overflow-hidden glass">
                           {isVideo ? (
-                            <video src={photo.photo_url} controls className="w-full h-full object-cover" />
+                            <video src={photo.photo_url} controls playsInline className="w-full h-full object-cover" />
                           ) : (
                             <img src={photo.photo_url} alt={photo.caption || "Event photo"} className="w-full h-full object-cover" />
                           )}
