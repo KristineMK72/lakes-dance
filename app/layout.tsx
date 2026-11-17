@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
+import Link from "next/link";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -45,6 +46,13 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Header />
         {children}
+        <footer className="border-t border-white/10 mt-auto">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 text-center text-xs sm:text-sm text-slate-500">
+            <Link href="/privacy" className="hover:text-slate-300">Privacy</Link>
+            <span className="mx-2">·</span>
+            <span>Your account and posts are protected. We don’t sell your information.</span>
+          </div>
+        </footer>
       </body>
     </html>
   );
