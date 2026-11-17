@@ -2,11 +2,13 @@ import Link from "next/link";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 import { rsvp } from "./events/rsvp-actions";
 import { saveEvent } from "./events/save-actions";
+import { deleteEvent } from "./events/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   let events: any[] = [];
+  let user: any = null;
 
   const now = new Date();
   const monthStart = startOfMonth(now);
@@ -18,6 +20,8 @@ export default async function Home() {
     try {
       const { createClient } = await import("@/lib/supabase/server");
       const supabase = await createClient();
+      const { data: { user: u } } = await supabase.auth.getUser();
+      user = u;
 
       const { data } = await supabase
         .from("lakes_events")
@@ -118,16 +122,25 @@ export default async function Home() {
             {upcoming.map((e) => {
               const goingList = (e.lakes_rsvps || []).filter((r: any) => r.status === "going");
               const going = goingList.length;
-              const mapsUrl = e.location
-                ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(e.location)}`
-                : null;
+              const encoded = e.location ? encodeURIComponent(e.location) : null;
+              const googleUrl = encoded ? `https://maps.google.com/maps?daddr=${encoded}` : null;
+              const appleUrl = encoded ? `https://maps.apple.com/?daddr=${encoded}` : null;
+              const isOwn = user && e.user_id === user.id;
               return (
                 <div key={e.id} className="group glass rounded-2xl p-5 sm:p-6 hover:border-cyan-500/40 transition border border-transparent">
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-cyan-500/15 text-cyan-300">
                       {e.dance_style || "Event"}
                     </span>
-                    <span className="text-xs text-slate-400">{going} going</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400">{going} going</span>
+                      {isOwn && (
+                        <form action={deleteEvent}>
+                          <input type="hidden" name="event_id" value={e.id} />
+                          <button type="submit" className="text-xs text-slate-500 hover:text-red-400">Delete</button>
+                        </form>
+                      )}
+                    </div>
                   </div>
                   <h3 className="text-lg sm:text-xl font-semibold mb-2 group-hover:text-cyan-200 transition">{e.title}</h3>
                   <p className="text-slate-400 text-sm mb-3">
@@ -174,14 +187,14 @@ export default async function Home() {
                         Save
                       </button>
                     </form>
-                    {mapsUrl && (
-                      <a
-                        href={mapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition"
-                      >
-                        Directions
+                    {googleUrl && (
+                      <a href={googleUrl} target="_blank" rel="noopener noreferrer" className="text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition">
+                        Google Maps
+                      </a>
+                    )}
+                    {appleUrl && (
+                      <a href={appleUrl} target="_blank" rel="noopener noreferrer" className="text-sm bg-slate-700/50 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition">
+                        Apple Maps
                       </a>
                     )}
                   </div>
