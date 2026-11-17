@@ -27,7 +27,6 @@ export async function createEvent(formData: FormData) {
   const start_time = formData.get("start_time") as string;
   const dance_style = formData.get("dance_style") as string;
 
-  // Store address inside location if given, so directions use the full address
   const fullLocation = address ? `${location || ""}${location && address ? " — " : ""}${address}` : location;
 
   const { error } = await supabase.from("lakes_events").insert({
@@ -47,4 +46,17 @@ export async function createEvent(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/calendar");
   redirect("/");
+}
+
+export async function deleteEvent(formData: FormData) {
+  const eventId = formData.get("event_id") as string;
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  await supabase.from("lakes_events").delete().eq("id", eventId).eq("user_id", user.id);
+
+  revalidatePath("/");
+  revalidatePath("/calendar");
 }
