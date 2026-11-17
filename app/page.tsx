@@ -1,14 +1,21 @@
 import Link from "next/link";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 import { rsvp } from "./events/rsvp-actions";
 import { saveEvent } from "./events/save-actions";
 import { signOut } from "./auth/actions";
+import MobileNav from "./components/MobileNav";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   let events: any[] = [];
   let user: any = null;
+
+  const now = new Date();
+  const monthStart = startOfMonth(now);
+  const monthEnd = endOfMonth(now);
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const startPadding = getDay(monthStart);
 
   if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     try {
@@ -27,9 +34,9 @@ export default async function Home() {
             lakes_profiles(full_name, avatar_url)
           )
         `)
-        .gte("start_time", new Date().toISOString())
-        .order("start_time", { ascending: true })
-        .limit(6);
+        .gte("start_time", monthStart.toISOString())
+        .lte("start_time", monthEnd.toISOString())
+        .order("start_time", { ascending: true });
       events = data || [];
     } catch (e) {
       console.error("Supabase fetch failed:", e);
@@ -37,42 +44,57 @@ export default async function Home() {
     }
   }
 
+  const upcoming = events.filter((e) => new Date(e.start_time) >= now).slice(0, 6);
+  const eventsByDay: Record<number, any[]> = {};
+  events.forEach((e) => {
+    const d = new Date(e.start_time).getDate();
+    if (!eventsByDay[d]) eventsByDay[d] = [];
+    eventsByDay[d].push(e);
+  });
+
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-50 border-b border-white/10 glass">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">LD</div>
             <span className="text-lg sm:text-xl font-semibold tracking-tight gradient-text">Lakes Dance</span>
           </Link>
-          <nav className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm overflow-x-auto">
-            <Link href="/calendar" className="text-slate-300 hover:text-white whitespace-nowrap">Calendar</Link>
-            <Link href="/wall" className="text-slate-300 hover:text-white whitespace-nowrap">Wall</Link>
-            <Link href="/bands" className="text-slate-300 hover:text-white whitespace-nowrap hidden sm:inline">Bands</Link>
-            <Link href="/past" className="text-slate-300 hover:text-white whitespace-nowrap">Past</Link>
-            <Link href="/post" className="text-slate-300 hover:text-white whitespace-nowrap">Post</Link>
-            <Link href="/profile" className="text-slate-300 hover:text-white whitespace-nowrap">Profile</Link>
+
+          <nav className="hidden md:flex items-center gap-5 text-sm">
+            <Link href="/calendar" className="text-slate-300 hover:text-white">Calendar</Link>
+            <Link href="/wall" className="text-slate-300 hover:text-white">Wall</Link>
+            <Link href="/bands" className="text-slate-300 hover:text-white">Bands</Link>
+            <Link href="/past" className="text-slate-300 hover:text-white">Past</Link>
+            <Link href="/post" className="text-slate-300 hover:text-white">Post</Link>
+            <Link href="/profile" className="text-slate-300 hover:text-white">Profile</Link>
             {user ? (
               <form action={signOut}>
-                <button type="submit" className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                <button type="submit" className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-full text-sm font-medium">
                   Sign Out
                 </button>
               </form>
             ) : (
-              <Link href="/login" className="bg-cyan-500 hover:bg-cyan-400 text-white px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">Sign In</Link>
+              <Link href="/login" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium">Sign In</Link>
             )}
           </nav>
+
+          <MobileNav signedIn={!!user} />
         </div>
       </header>
 
       <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-12 sm:pt-24 pb-12 sm:pb-20 text-center relative">
+        <div className="absolute inset-0">
+          <img src="/thumbnail.jpg" alt="" className="w-full h-full object-cover opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-slate-950/60 to-slate-950" />
+        </div>
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-16 sm:pt-24 pb-16 sm:pb-20 text-center">
           <p className="text-cyan-300 text-xs sm:text-sm font-medium tracking-widest uppercase mb-3">Brainerd Lakes Area</p>
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-4 sm:mb-6 leading-tight">
             <span className="gradient-text">Where the Lakes</span><br />
             <span className="text-white">Come to Dance</span>
           </h1>
-          <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto mb-8 sm:mb-10">
+          <p className="text-base sm:text-xl text-slate-200 max-w-2xl mx-auto mb-8 sm:mb-10">
             Find socials, classes, ballroom nights, line dancing, and community events. Post yours and connect with local dancers.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
@@ -80,24 +102,54 @@ export default async function Home() {
               Post an Event
             </Link>
             <Link href="/calendar" className="glass px-6 sm:px-8 py-3 sm:py-4 rounded-full font-medium text-base sm:text-lg hover:bg-white/10 transition">
-              Browse Calendar
+              Full Calendar
             </Link>
           </div>
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
+        <div className="flex items-end justify-between mb-4">
+          <h2 className="text-2xl sm:text-3xl font-semibold gradient-text">This Month</h2>
+          <Link href="/calendar" className="text-cyan-400 text-sm hover:underline">Full view →</Link>
+        </div>
+        <div className="glass rounded-2xl p-4 sm:p-6">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-[10px] sm:text-xs text-slate-500">
+            {["S","M","T","W","T","F","S"].map((d, i) => <div key={i}>{d}</div>)}
+          </div>
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
+            {Array.from({ length: startPadding }).map((_, i) => (
+              <div key={`p-${i}`} className="min-h-[52px] sm:min-h-[70px] rounded-lg opacity-30" />
+            ))}
+            {daysInMonth.map((day) => {
+              const dayNum = day.getDate();
+              const dayEvents = eventsByDay[dayNum] || [];
+              return (
+                <div key={dayNum} className={`min-h-[52px] sm:min-h-[70px] rounded-lg p-1 text-[10px] sm:text-xs bg-slate-900/40 ${dayEvents.length ? "ring-1 ring-cyan-500/40" : ""}`}>
+                  <div className="font-medium">{dayNum}</div>
+                  {dayEvents.slice(0, 1).map((ev) => (
+                    <div key={ev.id} className="text-cyan-300 truncate mt-0.5" title={ev.title}>{ev.title}</div>
+                  ))}
+                  {dayEvents.length > 1 && <div className="text-slate-500">+{dayEvents.length - 1}</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-4 sm:px-6 pb-16 sm:pb-24">
-        <div className="flex items-end justify-between mb-6 sm:mb-8">
+        <div className="flex items-end justify-between mb-6">
           <h2 className="text-2xl sm:text-3xl font-semibold gradient-text">Upcoming Events</h2>
           <Link href="/calendar" className="text-cyan-400 text-sm hover:underline">View all →</Link>
         </div>
-        {events.length === 0 ? (
+        {upcoming.length === 0 ? (
           <div className="glass rounded-2xl p-8 sm:p-12 text-center text-slate-400">
             No events yet. Be the first to post one!
           </div>
         ) : (
           <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {events.map((e) => {
+            {upcoming.map((e) => {
               const goingList = (e.lakes_rsvps || []).filter((r: any) => r.status === "going");
               const going = goingList.length;
               const mapsUrl = e.location
