@@ -46,40 +46,34 @@ export default async function CalendarPage() {
           </div>
           <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {Array.from({ length: startPadding }).map((_, i) => (
-              <div key={`pad-${i}`} className="min-h-[90px] sm:min-h-[120px] rounded-lg opacity-20" />
+              <div key={`pad-${i}`} className="min-h-[100px] sm:min-h-[130px] rounded-lg opacity-20" />
             ))}
             {daysInMonth.map((day) => {
               const dayNum = day.getDate();
               const dayEvents = eventsByDay[dayNum] || [];
               return (
-                <div key={dayNum} className={`min-h-[90px] sm:min-h-[120px] rounded-lg p-1.5 sm:p-2 text-xs bg-slate-900/50 ${dayEvents.length ? "ring-1 ring-cyan-500/50" : ""}`}>
+                <div key={dayNum} className={`min-h-[100px] sm:min-h-[130px] rounded-lg p-1.5 sm:p-2 text-xs bg-slate-900/50 ${dayEvents.length ? "ring-1 ring-cyan-500/50" : ""}`}>
                   <div className="font-semibold text-slate-200 mb-1">{dayNum}</div>
                   <div className="space-y-1">
                     {dayEvents.map((ev) => {
-                      const mapsUrl = ev.location
-                        ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ev.location)}`
-                        : null;
+                      const encoded = ev.location ? encodeURIComponent(ev.location) : null;
+                      const googleUrl = encoded ? `https://maps.google.com/maps?daddr=${encoded}` : null;
+                      const appleUrl = encoded ? `https://maps.apple.com/?daddr=${encoded}` : null;
                       const time = format(new Date(ev.start_time), "h:mm a");
-                      const content = (
-                        <>
+                      return (
+                        <div key={ev.id} className="bg-cyan-500/15 rounded px-1.5 py-1">
                           <div className="font-medium text-cyan-200 leading-tight">{ev.title}</div>
                           <div className="text-[10px] text-slate-400">{time}</div>
-                        </>
-                      );
-                      return mapsUrl ? (
-                        <a
-                          key={ev.id}
-                          href={mapsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block bg-cyan-500/15 hover:bg-cyan-500/25 rounded px-1.5 py-1 transition"
-                          title={`${ev.title} — tap for directions`}
-                        >
-                          {content}
-                        </a>
-                      ) : (
-                        <div key={ev.id} className="bg-slate-800/60 rounded px-1.5 py-1">
-                          {content}
+                          {(googleUrl || appleUrl) && (
+                            <div className="flex gap-1 mt-1">
+                              {googleUrl && (
+                                <a href={googleUrl} target="_blank" rel="noopener noreferrer" className="text-[9px] text-cyan-300 hover:underline">Google</a>
+                              )}
+                              {appleUrl && (
+                                <a href={appleUrl} target="_blank" rel="noopener noreferrer" className="text-[9px] text-cyan-300 hover:underline">Apple</a>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -89,7 +83,7 @@ export default async function CalendarPage() {
             })}
           </div>
         </div>
-        <p className="text-xs text-slate-500 mt-4 text-center">Tap any event for driving directions</p>
+        <p className="text-xs text-slate-500 mt-4 text-center">Tap Google or Apple for driving directions</p>
       </main>
     </div>
   );
