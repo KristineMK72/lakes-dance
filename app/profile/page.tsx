@@ -51,16 +51,6 @@ export default async function ProfilePage({
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-white/10 glass sticky top-0 z-50">
-        <div className="mx-auto max-w-2xl px-4 sm:px-6 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">LD</div>
-            <span className="text-lg sm:text-xl font-semibold">Lakes Dance</span>
-          </Link>
-          <Link href="/" className="text-sm text-slate-400 hover:text-white">Home</Link>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-2xl px-4 sm:px-6 py-6 sm:py-10">
         <div className="glass rounded-3xl p-5 sm:p-8 mb-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mb-4 text-center sm:text-left">
