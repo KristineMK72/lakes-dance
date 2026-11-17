@@ -40,36 +40,47 @@ export default async function CalendarPage() {
         <h1 className="text-3xl sm:text-4xl font-bold mb-2">Calendar</h1>
         <p className="text-slate-400 mb-8">{format(now, "MMMM yyyy")}</p>
 
-        <div className="glass rounded-2xl p-4 sm:p-6">
-          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4 text-center text-xs sm:text-sm text-slate-500">
+        <div className="glass rounded-2xl p-3 sm:p-6">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-3 text-center text-[10px] sm:text-xs text-slate-500">
             {days.map(d => <div key={d}>{d}</div>)}
           </div>
           <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {Array.from({ length: startPadding }).map((_, i) => (
-              <div key={`pad-${i}`} className="min-h-[80px] sm:min-h-[100px] rounded-xl opacity-30" />
+              <div key={`pad-${i}`} className="min-h-[90px] sm:min-h-[120px] rounded-lg opacity-20" />
             ))}
             {daysInMonth.map((day) => {
               const dayNum = day.getDate();
               const dayEvents = eventsByDay[dayNum] || [];
               return (
-                <div key={dayNum} className={`min-h-[80px] sm:min-h-[100px] rounded-xl p-1.5 sm:p-2 text-xs sm:text-sm bg-slate-900/40 ${dayEvents.length ? "ring-1 ring-cyan-500/40" : ""}`}>
-                  <div className="font-medium mb-1">{dayNum}</div>
+                <div key={dayNum} className={`min-h-[90px] sm:min-h-[120px] rounded-lg p-1.5 sm:p-2 text-xs bg-slate-900/50 ${dayEvents.length ? "ring-1 ring-cyan-500/50" : ""}`}>
+                  <div className="font-semibold text-slate-200 mb-1">{dayNum}</div>
                   <div className="space-y-1">
                     {dayEvents.map((ev) => {
                       const mapsUrl = ev.location
                         ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(ev.location)}`
                         : null;
-                      const label = (
-                        <span className="block text-[10px] leading-tight text-cyan-300 hover:text-cyan-100 truncate" title={`${ev.title}${ev.location ? " — " + ev.location : ""}`}>
-                          {ev.title}
-                        </span>
+                      const time = format(new Date(ev.start_time), "h:mm a");
+                      const content = (
+                        <>
+                          <div className="font-medium text-cyan-200 leading-tight">{ev.title}</div>
+                          <div className="text-[10px] text-slate-400">{time}</div>
+                        </>
                       );
                       return mapsUrl ? (
-                        <a key={ev.id} href={mapsUrl} target="_blank" rel="noopener noreferrer">
-                          {label}
+                        <a
+                          key={ev.id}
+                          href={mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block bg-cyan-500/15 hover:bg-cyan-500/25 rounded px-1.5 py-1 transition"
+                          title={`${ev.title} — tap for directions`}
+                        >
+                          {content}
                         </a>
                       ) : (
-                        <div key={ev.id}>{label}</div>
+                        <div key={ev.id} className="bg-slate-800/60 rounded px-1.5 py-1">
+                          {content}
+                        </div>
                       );
                     })}
                   </div>
@@ -78,7 +89,7 @@ export default async function CalendarPage() {
             })}
           </div>
         </div>
-        <p className="text-xs text-slate-500 mt-4 text-center">Click any event for driving directions</p>
+        <p className="text-xs text-slate-500 mt-4 text-center">Tap any event for driving directions</p>
       </main>
     </div>
   );
