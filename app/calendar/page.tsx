@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from "date-fns";
 
 export const dynamic = "force-dynamic";
@@ -37,33 +36,23 @@ export default async function CalendarPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-white/10 glass">
-        <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">LD</div>
-            <span className="text-xl font-semibold">Lakes Dance</span>
-          </Link>
-          <Link href="/post" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm">Post Event</Link>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-6 py-10">
-        <h1 className="text-4xl font-bold mb-2">Calendar</h1>
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-10">
+        <h1 className="text-3xl sm:text-4xl font-bold mb-2">Calendar</h1>
         <p className="text-slate-400 mb-8">{format(now, "MMMM yyyy")}</p>
 
-        <div className="glass rounded-2xl p-6">
-          <div className="grid grid-cols-7 gap-2 mb-4 text-center text-sm text-slate-500">
+        <div className="glass rounded-2xl p-4 sm:p-6">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-4 text-center text-xs sm:text-sm text-slate-500">
             {days.map(d => <div key={d}>{d}</div>)}
           </div>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2">
             {Array.from({ length: startPadding }).map((_, i) => (
-              <div key={`pad-${i}`} className="min-h-[100px] rounded-xl opacity-30" />
+              <div key={`pad-${i}`} className="min-h-[80px] sm:min-h-[100px] rounded-xl opacity-30" />
             ))}
             {daysInMonth.map((day) => {
               const dayNum = day.getDate();
               const dayEvents = eventsByDay[dayNum] || [];
               return (
-                <div key={dayNum} className={`min-h-[100px] rounded-xl p-2 text-sm bg-slate-900/40 ${dayEvents.length ? "ring-1 ring-cyan-500/40" : ""}`}>
+                <div key={dayNum} className={`min-h-[80px] sm:min-h-[100px] rounded-xl p-1.5 sm:p-2 text-xs sm:text-sm bg-slate-900/40 ${dayEvents.length ? "ring-1 ring-cyan-500/40" : ""}`}>
                   <div className="font-medium mb-1">{dayNum}</div>
                   <div className="space-y-1">
                     {dayEvents.map((ev) => {
