@@ -2,7 +2,6 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { postToWall, deleteWallPost } from "./actions";
-import { signOut } from "../auth/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -23,26 +22,7 @@ export default async function WallPage({
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-50 border-b border-white/10 glass">
-        <div className="mx-auto max-w-3xl px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">LD</div>
-            <span className="text-xl font-semibold">Lakes Dance</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-sm text-slate-300 hover:text-white">Home</Link>
-            {user && (
-              <form action={signOut}>
-                <button type="submit" className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-full text-xs font-medium">
-                  Sign Out
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-3xl px-6 py-10">
+      <main className="mx-auto max-w-3xl px-4 sm:px-6 py-10">
         <h1 className="text-3xl font-bold mb-6">Community Wall</h1>
 
         {params?.message && (
@@ -50,7 +30,7 @@ export default async function WallPage({
         )}
 
         {user ? (
-          <form action={postToWall} encType="multipart/form-data" className="glass rounded-2xl p-6 mb-8 space-y-3">
+          <form action={postToWall} encType="multipart/form-data" className="glass rounded-2xl p-5 sm:p-6 mb-8 space-y-3">
             <textarea
               name="content"
               placeholder="Share something with the Lakes Dance community..."
@@ -85,7 +65,7 @@ export default async function WallPage({
             const isVideo = post.image_url && /\.(mp4|webm|mov)$/i.test(post.image_url);
             const isOwn = user && post.author_id === user.id;
             return (
-              <div key={post.id} className="glass rounded-2xl p-5">
+              <div key={post.id} className="glass rounded-2xl p-4 sm:p-5">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <Link href={`/profile/${post.author_id}`} className="w-9 h-9 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 text-sm font-medium overflow-hidden">
@@ -110,7 +90,7 @@ export default async function WallPage({
                 <p className="text-slate-200">{post.content}</p>
                 {post.image_url && (
                   isVideo ? (
-                    <video src={post.image_url} controls className="mt-3 rounded-xl max-h-80 w-full" />
+                    <video src={post.image_url} controls playsInline className="mt-3 rounded-xl max-h-80 w-full" />
                   ) : (
                     <img src={post.image_url} alt="" className="mt-3 rounded-xl max-h-80 object-cover w-full" />
                   )
