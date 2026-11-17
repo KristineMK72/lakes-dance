@@ -52,32 +52,47 @@ export default async function ProfilePage({
   return (
     <div className="min-h-screen">
       <main className="mx-auto max-w-2xl px-4 sm:px-6 py-6 sm:py-10">
-        <div className="glass rounded-3xl p-5 sm:p-8 mb-6">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mb-4 text-center sm:text-left">
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-3xl font-bold overflow-hidden flex-shrink-0">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                (profile?.full_name?.[0] || "?").toUpperCase()
-              )}
-            </div>
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-3xl font-bold">{profile?.full_name || "Your Wall"}</h1>
-              <p className="text-slate-400 text-sm">{user.email}</p>
-              {profile?.bio && <p className="text-slate-300 text-sm mt-2">{profile.bio}</p>}
-            </div>
+        <div className="glass rounded-3xl overflow-hidden mb-6">
+          <div className="h-32 sm:h-40 bg-gradient-to-r from-cyan-600/40 to-blue-600/40 relative">
+            {profile?.cover_url && (
+              <img src={profile.cover_url} alt="" className="w-full h-full object-cover" />
+            )}
           </div>
+          <div className="px-5 sm:px-8 pb-6 -mt-12">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-3xl font-bold overflow-hidden border-4 border-slate-900 flex-shrink-0">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  (profile?.full_name?.[0] || "?").toUpperCase()
+                )}
+              </div>
+              <div className="text-center sm:text-left sm:mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold">{profile?.full_name || "Your Wall"}</h1>
+                <p className="text-slate-400 text-sm">{user.email}</p>
+                {profile?.bio && <p className="text-slate-300 text-sm mt-1">{profile.bio}</p>}
+              </div>
+            </div>
 
-          <details className="mb-2">
-            <summary className="text-sm text-cyan-400 cursor-pointer">Edit profile</summary>
-            <form action={updateProfile} encType="multipart/form-data" className="space-y-3 mt-3">
-              <input name="full_name" defaultValue={profile?.full_name || ""} placeholder="Full name" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
-              <textarea name="bio" defaultValue={profile?.bio || ""} rows={2} placeholder="Bio" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
-              <input name="avatar_file" type="file" accept="image/*" className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-cyan-500/20 file:text-cyan-300" />
-              <input name="avatar_url" defaultValue={profile?.avatar_url || ""} placeholder="Or paste image URL" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
-              <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium">Save</button>
-            </form>
-          </details>
+            <details className="mt-4">
+              <summary className="text-sm text-cyan-400 cursor-pointer">Edit profile</summary>
+              <form action={updateProfile} encType="multipart/form-data" className="space-y-3 mt-3">
+                <input name="full_name" defaultValue={profile?.full_name || ""} placeholder="Full name" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
+                <textarea name="bio" defaultValue={profile?.bio || ""} rows={2} placeholder="Bio" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Profile photo</label>
+                  <input name="avatar_file" type="file" accept="image/*" className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-cyan-500/20 file:text-cyan-300" />
+                  <input name="avatar_url" defaultValue={profile?.avatar_url || ""} placeholder="Or paste image URL" className="w-full mt-2 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-400 mb-1">Cover photo</label>
+                  <input name="cover_file" type="file" accept="image/*" className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-cyan-500/20 file:text-cyan-300" />
+                  <input name="cover_url" defaultValue={profile?.cover_url || ""} placeholder="Or paste cover URL" className="w-full mt-2 bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
+                </div>
+                <button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-white px-4 py-2 rounded-full text-sm font-medium">Save</button>
+              </form>
+            </details>
+          </div>
         </div>
 
         {params?.message && (
