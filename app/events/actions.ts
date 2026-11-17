@@ -23,14 +23,18 @@ export async function createEvent(formData: FormData) {
   const title = formData.get("title") as string;
   const description = formData.get("description") as string;
   const location = formData.get("location") as string;
+  const address = formData.get("address") as string;
   const start_time = formData.get("start_time") as string;
   const dance_style = formData.get("dance_style") as string;
+
+  // Store address inside location if given, so directions use the full address
+  const fullLocation = address ? `${location || ""}${location && address ? " — " : ""}${address}` : location;
 
   const { error } = await supabase.from("lakes_events").insert({
     user_id: user.id,
     title,
     description,
-    location,
+    location: fullLocation,
     start_time: new Date(start_time).toISOString(),
     dance_style,
   });
