@@ -6,7 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string }>;
+}) {
+  const params = await searchParams;
   let profile: any = null;
   let user: any = null;
   let posts: any[] = [];
@@ -85,10 +90,15 @@ export default async function ProfilePage() {
           </details>
         </div>
 
+        {params?.message && (
+          <p className="mb-4 text-sm text-cyan-400">{params.message}</p>
+        )}
+
         <form action={postToWall} encType="multipart/form-data" className="glass rounded-2xl p-4 sm:p-5 mb-6 space-y-3">
+          <input type="hidden" name="return_to" value="/profile" />
           <textarea name="content" placeholder="What's happening at the dance?" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 min-h-[80px]" required />
           <div>
-            <label className="block text-xs text-slate-400 mb-1">Add a photo or video</label>
+            <label className="block text-xs text-slate-400 mb-1">Add a photo or video (keep videos under ~20 MB for best results)</label>
             <input name="image_file" type="file" accept="image/*,video/*" className="w-full text-sm text-slate-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:bg-cyan-500/20 file:text-cyan-300" />
           </div>
           <input name="image_url" type="url" placeholder="Or paste a photo/video URL" className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-cyan-500" />
