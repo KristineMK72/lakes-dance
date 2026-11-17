@@ -8,6 +8,7 @@ export async function postToWall(formData: FormData) {
   const content = formData.get("content") as string;
   let mediaUrl = formData.get("image_url") as string;
   const file = formData.get("image_file") as File | null;
+  const returnTo = (formData.get("return_to") as string) || "/wall";
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -22,9 +23,8 @@ export async function postToWall(formData: FormData) {
   }, { onConflict: "id" });
 
   if (file && file.size > 0) {
-    // Soft limit — warn on very large files
     if (file.size > 50 * 1024 * 1024) {
-      redirect("/wall?message=" + encodeURIComponent("File is too large. Try a smaller video (under 50 MB)."));
+      redirect(returnTo + "?message=" + encodeURIComponent("File is too large. Try a shorter video under 50 MB."));
     }
 
     const ext = file.name.split(".").pop() || "jpg";
@@ -35,7 +35,7 @@ export async function postToWall(formData: FormData) {
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
-      redirect("/wall?message=" + encodeURIComponent("Upload failed: " + (uploadError.message || "unknown error")));
+      redirect(returnTo + "?message=" + encodeURIComponent("Upload failed: " + (uploadError.message || "unknown error")));
     }
 
     const { data } = supabase.storage.from("lakes-images").getPublicUrl(path);
@@ -51,13 +51,13 @@ export async function postToWall(formData: FormData) {
 
   if (error) {
     console.error("Wall post error:", error);
-    redirect("/wall?message=" + encodeURIComponent(error.message || "Could not post"));
+    redirect(returnTo + "?message=" + encodeURIComponent(error.message || "Could not post"));
   }
 
   revalidatePath("/wall");
   revalidatePath("/profile");
   revalidatePath(`/profile/${user.id}`);
-  redirect("/wall");
+  redirect(returnTo);
 }
 
 export async function deleteWallPost(formData: FormData) {
